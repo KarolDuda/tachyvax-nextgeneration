@@ -1,0 +1,17 @@
+[workspace]
+resolver = "2"
+members = ["crates/neox-core", "crates/neox-sys", "app"]
+default-members = ["crates/neox-core", "crates/neox-sys"]
+
+[workspace.package]
+version = "3.1.0"
+edition = "2021"
+authors = ["spinprint"]
+license = "LicenseRef-Proprietary"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "s"
+strip = true
+panic = "abort"

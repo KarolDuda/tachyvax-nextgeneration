@@ -1,31 +1,30 @@
-# NEOX 3.0 RECODE: Windows optimizer (C# · .NET 10 · WinUI 3)
+<p align="center"><img src="docs/brand/neox-logo.svg" width="128" alt="NEOX logo"></p>
 
-NEOX tunes Windows 10/11 for gaming. 253 documented tweaks with benefits and side effects, one-click profiles, undo for every change, network tools, monitoring, startup/service/process managers and disk analysis.
+# NEOX: Windows optimizer (Rust + Tauri)
 
-## Install
-Download `Neox_Setup.exe` from the **Releases** page of this repository. It is built by GitHub Actions on every push to `main`. The installer is not code-signed, so SmartScreen may warn you (More info → Run anyway). NEOX updates itself in the background when auto-update is enabled.
+NEOX tunes Windows 10/11 for gaming. Hundreds of documented tweaks with their benefits and side effects, profiles, undo for every change, network tools, a Keyboard and a Mouse page, Auto-Tune, monitoring and cleanup.
+
+## Download
+Builds are published by GitHub Actions from the `recode` branch: open the [latest release](https://github.com/KarolDuda/NEOX/releases/latest) and download `Neox_Setup.exe`. Installed copies update themselves: Settings, Check for updates, Install. The installer is not code-signed, so SmartScreen may warn you (More info, then Run anyway). Each release lists the SHA-256 of the files and a build attestation you can verify with `gh attestation verify Neox_Setup.exe --repo KarolDuda/NEOX`.
+
+## Free and Premium
+- **Free**: a set of safe optimizations, the basics on the Keyboard and Mouse pages, network repair, the DNS switcher, undo, history, restore point and the disk analyzer.
+- **Premium**: every optimization (including the high-risk performance items), the full Keyboard and Mouse pages, Auto-Tune, Internet Auto-Tune, profiles, Game Boost, Memory Cleaner, Performance Score and game tools. A 7-day trial is available. Licenses are bound to one PC.
 
 ## Safety
-- No critical services (Windows Update, Defender, Firewall, EventLog, RPC) and no keys that disable Defender or updates. Tests enforce this.
-- Every change: full snapshot before, read-back after, automatic rollback if Windows did not accept it.
-- High-risk items need a separate confirmation and are never part of any profile.
-- Starts without administrator rights; elevation only on request.
-
-## Features
-- **Auto-Tune**: scans hardware (laptop/desktop, RAM, SSD, GPU), picks only safe changes, shows the plan with reasons, optionally benchmarks before and after (changes under the noise threshold are not reported as gains), and undoes everything with one button. It does not promise FPS.
-- **System health**: a 0–100 score from explicit rules (disk, uptime, startup, applied tweaks, RAM) with Fix buttons.
-- **Game Boost**: switches power plan and process priority while a listed game runs; the previous plan is stored in `state.json`, so it is restored even after a crash.
-- **Profile export/import** (JSON), validated: unknown, service, experimental and high-risk entries are rejected.
+- Every change takes a snapshot first, is read back afterwards and is rolled back if Windows did not accept it. Everything can be reverted from History.
+- Risky items (experimental and high risk) show a warning and need a confirmation. NEOX never touches Defender, Windows Update, Firewall or other critical services.
+- Network items that can slow the Internet (global offload off, connectivity probe off, DNS negative cache off and similar) are never part of a profile or Auto-Tune. "Repair my internet" on the Network page undoes them and restores the Windows TCP defaults.
+- Back up your system before using the extreme items. NEOX shows this reminder on every launch.
 
 ## Layout
 ```
-src/Neox.Core       catalog, engine, profiles, state store (no Windows APIs)
-src/Neox.Windows    registry, powercfg, services, bcdedit, network, monitoring, cleanup
-src/Neox.App        WinUI 3 UI (MVVM, DI, Serilog)
-tests/              xUnit (Core and Windows layer)
-installer/          Inno Setup
-docs/               architecture, test plan
+crates/neox-core   catalog (data/tweaks.json), engine, profiles, Auto-Tune, license (no Windows APIs)
+crates/neox-sys    registry, powercfg, services, bcdedit, network, cleanup (Windows layer)
+app/               Tauri shell and commands
+ui/                the interface (plain HTML, CSS and JavaScript, no build step)
+installer/         Inno Setup
+docs/              architecture, testing, brand assets
 ```
-Logs: `%LOCALAPPDATA%\Neox\logs`. State and backups: `%LOCALAPPDATA%\Neox\state.json`.
 
 Author and publisher: spinprint (spinprint.pl).

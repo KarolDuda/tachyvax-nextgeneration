@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NEOX</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i><i class="grain"></i></div>
+
+  <div id="app" class="app">
+    <header class="titlebar" data-tauri-drag-region>
+      <div class="tb-brand" data-tauri-drag-region><img src="assets/neox-logo.png" alt=""><span>NEOX</span></div>
+      <div class="tb-spacer" data-tauri-drag-region></div>
+      <button class="tb-btn" id="tb-min" aria-label="Minimize"><svg viewBox="0 0 10 10"><path d="M1 5h8"/></svg></button>
+      <button class="tb-btn" id="tb-max" aria-label="Maximize"><svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" rx="1"/></svg></button>
+      <button class="tb-btn tb-close" id="tb-close" aria-label="Close"><svg viewBox="0 0 10 10"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
+    </header>
+
+    <div id="bars"></div>
+
+    <div class="body">
+      <nav class="sidebar" id="sidebar">
+        <div class="logo-wrap"><div class="logo-glow"></div><img src="assets/neox-logo.png" alt="NEOX"></div>
+        <div class="version" id="version"></div>
+        <div class="nav" id="nav"><i class="nav-ind" id="nav-ind"></i></div>
+        <div class="by">by spinprint</div>
+      </nav>
+      <main class="content" id="content"></main>
+    </div>
+  </div>
+
+  <div id="splash" class="splash">
+    <div class="splash-glow"></div>
+    <i class="wave w1"></i><i class="wave w2"></i>
+    <img class="splash-logo" src="assets/neox-logo.png" alt="">
+    <div class="splash-title">NEOX</div>
+    <div class="splash-tag">OPTIMIZATION WITHOUT GUESSWORK</div>
+    <div class="splash-bar"><i id="splash-fill"></i></div>
+  </div>
+
+  <div id="toasts" class="toasts"></div>
+  <div id="modal-root"></div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+name: Issue NEOX license
+
+# Run this by hand (Actions > Issue NEOX license > Run workflow) when someone buys Premium.
+# Needs the repository secret NEOX_LICENSE_KEY (the Ed25519 private key, PEM).
+on:
+  workflow_dispatch:
+    inputs:
+      hwid:
+        description: "Customer hardware ID, e.g. NEOX-1A2B-3C4D-5E6F-7A8B"
+        required: true
+      name:
+        description: "Customer name or Discord nick (shown in the app; keep it non-sensitive)"
+        required: true
+      days:
+        description: "Validity in days (0 = lifetime)"
+        required: true
+        default: "0"
+
+permissions:
+  contents: read
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create license key
+        env:
+          NEOX_LICENSE_KEY: ${{ secrets.NEOX_LICENSE_KEY }}
+          HWID: ${{ inputs.hwid }}
+          CUSTOMER: ${{ inputs.name }}
+          DAYS: ${{ inputs.days }}
+        run: |
+          set -euo pipefail
+          if [ -z "$NEOX_LICENSE_KEY" ]; then echo "::error::Secret NEOX_LICENSE_KEY is not set."; exit 1; fi
+          if ! [[ "$HWID" =~ ^NEOX-[0-9A-Fa-f]{4}(-[0-9A-Fa-f]{4}){3}$ ]]; then echo "::error::Hardware ID must look like NEOX-1A2B-3C4D-5E6F-7A8B"; exit 1; fi
+          if ! [[ "$DAYS" =~ ^[0-9]{1,5}$ ]]; then echo "::error::Days must be a number."; exit 1; fi
+          now=$(date +%s)
+          exp=0; if [ "$DAYS" != "0" ]; then exp=$(( now + DAYS * 86400 )); fi
+          id="L-$(date +%Y%m%d)-$(openssl rand -hex 3 | tr a-f A-F)"
+          umask 077
+          printf '%s\n' "$NEOX_LICENSE_KEY" > "$RUNNER_TEMP/k.pem"
+          jq -cn --arg id "$id" --arg name "$CUSTOMER" --arg hwid "${HWID^^}" --argjson iat "$now" --argjson exp "$exp" \
+            '{id:$id,name:$name,hwid:$hwid,plan:"premium",exp:$exp,iat:$iat}' | tr -d '\n' > "$RUNNER_TEMP/payload.json"
+          openssl pkeyutl -sign -rawin -inkey "$RUNNER_TEMP/k.pem" -in "$RUNNER_TEMP/payload.json" -out "$RUNNER_TEMP/sig.bin"
+          b64u() { base64 -w0 "$1" | tr '+/' '-_' | tr -d '='; }
+          key="NEOX1.$(b64u "$RUNNER_TEMP/payload.json").$(b64u "$RUNNER_TEMP/sig.bin")"
+          shred -u "$RUNNER_TEMP/k.pem" || rm -f "$RUNNER_TEMP/k.pem"
+          {
+            echo "### License for ${HWID^^}"
+            echo "ID: \`$id\` · valid: $([ "$DAYS" = "0" ] && echo lifetime || echo "$DAYS days")"
+            echo
+            echo "Send this key to the customer (private message / ticket):"
+            echo
+            echo '```'
+            echo "$key"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
